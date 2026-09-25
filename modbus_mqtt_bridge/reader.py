@@ -49,6 +49,7 @@ class ModbusReader:
             if not self._client.connected:
                 logger.warning("[%s] connection failed", self._cfg.name)
                 return False
+            _ensure_datatype_map(self._client)
             logger.info("[%s] connected", self._cfg.name)
             return True
         except Exception as exc:
