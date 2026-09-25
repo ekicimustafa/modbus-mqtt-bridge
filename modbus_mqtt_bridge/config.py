@@ -39,6 +39,8 @@ class DeviceConfig(BaseModel):
     unit_id: int = Field(1, ge=1, le=247)
     poll_interval: float = Field(5.0, description="Poll interval in seconds", ge=0.5)
     timeout: float = Field(3.0, description="Modbus request timeout in seconds")
+    reconnect_delay: float = Field(5.0, description="Initial delay between reconnect attempts in seconds", ge=1.0)
+    max_reconnect_delay: float = Field(60.0, description="Maximum reconnect delay (exponential backoff cap) in seconds", ge=1.0)
     byte_order: Literal["big", "little"] = "big"
     word_order: Literal["big", "little"] = "big"
 
