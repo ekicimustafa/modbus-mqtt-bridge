@@ -12,9 +12,6 @@ from .reader import ModbusReader
 
 logger = logging.getLogger(__name__)
 
-_RECONNECT_DELAY = 5.0   # seconds between Modbus reconnect attempts
-
-
 async def run_bridge(cfg: BridgeConfig) -> None:
     """Run all device pollers concurrently under a shared MQTT connection."""
     if not cfg.devices:
@@ -41,17 +38,20 @@ async def run_bridge(cfg: BridgeConfig) -> None:
 
 
 async def _device_loop(device: DeviceConfig, publisher: MqttPublisher) -> None:
-    """Poll a single device forever, reconnecting on failure."""
+    """Poll a single device forever, reconnecting on failure with exponential backoff."""
     reader = ModbusReader(device)
     logger.info("[%s] starting — poll every %.1fs", device.name, device.poll_interval)
+    delay = device.reconnect_delay
 
     while True:
         if not reader.connected:
             connected = await reader.connect()
             if not connected:
-                logger.info("[%s] retrying in %.0fs…", device.name, _RECONNECT_DELAY)
-                await asyncio.sleep(_RECONNECT_DELAY)
+                logger.info("[%s] retrying in %.0fs…", device.name, delay)
+                await asyncio.sleep(delay)
+                delay = min(delay * 2, device.max_reconnect_delay)
                 continue
+            delay = device.reconnect_delay  # reset on successful connect
 
         try:
             readings = await reader.read_all()
