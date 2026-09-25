@@ -1,0 +1,19 @@
+services:
+  modbus-mqtt-bridge:
+    image: ekicimustafa/modbus-mqtt-bridge:latest
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/config/config.yaml:ro
+    # For RTU (serial port) access, uncomment:
+    # devices:
+    #   - /dev/ttyUSB0:/dev/ttyUSB0
+    depends_on:
+      - mqtt
+
+  # Optional: local Mosquitto broker for testing
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro

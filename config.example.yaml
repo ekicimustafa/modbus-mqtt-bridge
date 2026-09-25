@@ -1,0 +1,116 @@
+# modbus-mqtt-bridge — example configuration
+# Copy this file to config.yaml and adjust for your setup.
+
+mqtt:
+  host: localhost          # MQTT broker hostname or IP
+  port: 1883
+  username: ""             # leave empty if no auth
+  password: ""
+  client_id: modbus-mqtt-bridge
+  topic_prefix: modbus     # topics: modbus/{device_name}/{register_name}
+  qos: 1
+  retain: false
+  batch_publish: false     # true → one topic per device with all registers as JSON
+
+devices:
+
+  # ── Example 1: Solar Inverter (Modbus TCP) ─────────────────────────────────
+  - name: inverter_1
+    host: 192.168.1.10
+    port: 502
+    unit_id: 1
+    poll_interval: 5       # seconds
+    byte_order: big
+    word_order: big
+    registers:
+      - name: ac_power_w
+        address: 0
+        type: float32
+        function_code: 4   # 4 = input registers
+        unit: W
+      - name: dc_voltage_v
+        address: 2
+        type: float32
+        function_code: 4
+        unit: V
+      - name: dc_current_a
+        address: 4
+        type: float32
+        function_code: 4
+        unit: A
+      - name: daily_energy_kwh
+        address: 6
+        type: float32
+        function_code: 4
+        multiplier: 0.1    # raw value is in 0.1 kWh units
+        unit: kWh
+      - name: fault_code
+        address: 40900
+        type: uint16
+        function_code: 3   # 3 = holding registers
+
+  # ── Example 2: Energy Meter (Modbus RTU via RS-485) ───────────────────────
+  - name: energy_meter
+    serial_port: /dev/ttyUSB0   # Windows: COM3
+    baudrate: 9600
+    parity: N
+    stopbits: 1
+    bytesize: 8
+    unit_id: 2
+    poll_interval: 10
+    byte_order: big
+    word_order: big
+    registers:
+      - name: active_power_kw
+        address: 0
+        type: float32
+        function_code: 4
+        unit: kW
+      - name: reactive_power_kvar
+        address: 2
+        type: float32
+        function_code: 4
+        unit: kVAR
+      - name: voltage_l1_v
+        address: 4
+        type: float32
+        function_code: 4
+        unit: V
+      - name: current_l1_a
+        address: 6
+        type: float32
+        function_code: 4
+        unit: A
+      - name: total_energy_kwh
+        address: 256
+        type: float32
+        function_code: 4
+        unit: kWh
+
+  # ── Example 3: PLC with coils and holding registers ───────────────────────
+  - name: plc_1
+    host: 192.168.1.20
+    port: 502
+    unit_id: 1
+    poll_interval: 2
+    registers:
+      - name: pump_running
+        address: 0
+        type: bool
+        function_code: 1   # 1 = coils
+      - name: pump_fault
+        address: 1
+        type: bool
+        function_code: 1
+      - name: tank_level_pct
+        address: 0
+        type: uint16
+        function_code: 3
+        multiplier: 0.1    # raw 0–1000 → 0.0–100.0 %
+        unit: "%"
+      - name: setpoint_temp
+        address: 1
+        type: int16
+        function_code: 3
+        multiplier: 0.1
+        unit: "°C"
