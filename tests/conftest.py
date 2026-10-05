@@ -11,7 +11,16 @@ import pytest
 from pymodbus.datastore import ModbusDeviceContext, ModbusSequentialDataBlock, ModbusServerContext
 from pymodbus.server import ModbusTcpServer
 
+from modbus_mqtt_bridge.__main__ import new_event_loop
+
 UNIT_ID = 1
+
+
+def pytest_asyncio_loop_factories(config, item):
+    """Run tests on the same event loop the CLI uses (selector loop on Windows)."""
+    return {"cli": new_event_loop}
+
+
 _SIZE = 100
 
 RegisterMap = Dict[int, list]  # start address -> consecutive values

@@ -27,6 +27,17 @@ def _setup_logging(level: str) -> None:
         logging.getLogger("pymodbus").setLevel(logging.WARNING)
 
 
+def new_event_loop() -> asyncio.AbstractEventLoop:
+    """Event loop that aiomqtt can use on every platform.
+
+    aiomqtt needs add_reader/add_writer, which Windows' default Proactor loop
+    does not implement, so Windows gets a selector loop.
+    """
+    if sys.platform == "win32":
+        return asyncio.SelectorEventLoop()
+    return asyncio.new_event_loop()
+
+
 @click.command()
 @click.option(
     "-c", "--config",
@@ -53,7 +64,7 @@ def main(config: Path, log_level: str) -> None:
         logger.error("Config error: %s", exc)
         sys.exit(1)
 
-    loop = asyncio.new_event_loop()
+    loop = new_event_loop()
     asyncio.set_event_loop(loop)
 
     task = loop.create_task(run_bridge(cfg))

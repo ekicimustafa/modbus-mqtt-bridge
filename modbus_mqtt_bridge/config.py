@@ -66,6 +66,8 @@ class MqttConfig(BaseModel):
     keepalive: int = 60
     qos: Literal[0, 1, 2] = 1
     retain: bool = False
+    reconnect_delay: float = Field(5.0, description="Initial delay between broker reconnect attempts in seconds", ge=0.1)
+    max_reconnect_delay: float = Field(60.0, description="Maximum broker reconnect delay (exponential backoff cap) in seconds", ge=0.1)
 
     # Publish all registers as one JSON object per device instead of one topic per register
     batch_publish: bool = False
