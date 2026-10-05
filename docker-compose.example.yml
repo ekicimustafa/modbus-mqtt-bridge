@@ -1,6 +1,6 @@
 services:
   modbus-mqtt-bridge:
-    image: ekicimustafa/modbus-mqtt-bridge:latest
+    build: .
     restart: unless-stopped
     volumes:
       - ./config.yaml:/config/config.yaml:ro
@@ -10,10 +10,9 @@ services:
     depends_on:
       - mqtt
 
-  # Optional: local Mosquitto broker for testing
+  # Optional: local Mosquitto broker for testing (anonymous access, port 1883)
   mqtt:
     image: eclipse-mosquitto:2
+    command: mosquitto -c /mosquitto-no-auth.conf
     ports:
       - "1883:1883"
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
