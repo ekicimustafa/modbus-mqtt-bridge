@@ -79,7 +79,7 @@ class ModbusReader:
                 if value is not None:
                     results[reg.name] = value
             except Exception as exc:
-                logger.debug("[%s] register %s error: %s", self._cfg.name, reg.name, exc)
+                logger.warning("[%s] register %s error: %s", self._cfg.name, reg.name, exc)
         return results
 
     async def _read_register(self, reg: RegisterConfig) -> Optional[Any]:
