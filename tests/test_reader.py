@@ -78,6 +78,42 @@ async def test_word_order_little_swaps_registers(fake_device):
     assert values == {"frequency": pytest.approx(50.0)}
 
 
+def swap_bytes(word: int) -> int:
+    return ((word & 0xFF) << 8) | (word >> 8)
+
+
+async def test_byte_order_little_swaps_bytes_in_each_register(fake_device):
+    port = await fake_device(holding={
+        0: [swap_bytes(w) for w in float32_words(50.0)],
+        2: [swap_bytes(1234)],
+    })
+
+    values = await read(make_device(
+        port,
+        [
+            {"name": "frequency", "address": 0, "type": "float32"},
+            {"name": "count", "address": 2, "type": "uint16"},
+        ],
+        byte_order="little",
+    ))
+
+    assert values == {"frequency": pytest.approx(50.0), "count": 1234}
+
+
+async def test_byte_and_word_order_little_together(fake_device):
+    high, low = float32_words(-12.25)
+    port = await fake_device(holding={0: [swap_bytes(low), swap_bytes(high)]})
+
+    values = await read(make_device(
+        port,
+        [{"name": "temperature", "address": 0, "type": "float32"}],
+        byte_order="little",
+        word_order="little",
+    ))
+
+    assert values == {"temperature": pytest.approx(-12.25)}
+
+
 async def test_unreachable_device_does_not_connect():
     reader = ModbusReader(make_device(1, [{"name": "x", "address": 0}]))
     assert not await reader.connect()

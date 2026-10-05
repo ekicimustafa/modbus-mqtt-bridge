@@ -123,10 +123,13 @@ class ModbusReader:
             return None
 
         word_order = "big" if self._cfg.word_order == "big" else "little"
+        registers = list(raw.registers)
+        if self._cfg.byte_order == "little":
+            registers = [_swap_bytes(word) for word in registers]
 
         try:
             value = self._client.convert_from_registers(
-                raw.registers, data_type=datatype, word_order=word_order
+                registers, data_type=datatype, word_order=word_order
             )
         except Exception as exc:
             logger.debug("[%s] decode error %s: %s", self._cfg.name, reg.name, exc)
@@ -142,6 +145,11 @@ class ModbusReader:
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
+
+def _swap_bytes(word: int) -> int:
+    """Swap the two bytes of a 16-bit register (byte_order: little)."""
+    return ((word & 0xFF) << 8) | (word >> 8)
+
 
 def _register_count(data_type: str) -> int:
     return {"float64": 4, "uint32": 2, "int32": 2, "float32": 2}.get(data_type, 1)
