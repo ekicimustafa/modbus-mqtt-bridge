@@ -88,13 +88,13 @@ class ModbusReader:
 
         try:
             if fc == _FC_COIL:
-                raw = await self._client.read_coils(reg.address, count=count, slave=self._cfg.unit_id)
+                raw = await self._client.read_coils(reg.address, count=count, device_id=self._cfg.unit_id)
             elif fc == _FC_DISCRETE:
-                raw = await self._client.read_discrete_inputs(reg.address, count=count, slave=self._cfg.unit_id)
+                raw = await self._client.read_discrete_inputs(reg.address, count=count, device_id=self._cfg.unit_id)
             elif fc == _FC_HOLDING:
-                raw = await self._client.read_holding_registers(reg.address, count=count, slave=self._cfg.unit_id)
+                raw = await self._client.read_holding_registers(reg.address, count=count, device_id=self._cfg.unit_id)
             else:
-                raw = await self._client.read_input_registers(reg.address, count=count, slave=self._cfg.unit_id)
+                raw = await self._client.read_input_registers(reg.address, count=count, device_id=self._cfg.unit_id)
         except (ConnectionException, ModbusException) as exc:
             logger.warning("[%s] read error addr=%d: %s", self._cfg.name, reg.address, exc)
             return None
