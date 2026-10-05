@@ -23,11 +23,17 @@ classifiers = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "pymodbus>=3.6,<4.0",
+    "pymodbus>=3.10,<4.0",
     "aiomqtt>=2.0",
     "pydantic>=2.0",
     "pyyaml>=6.0",
     "click>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
 ]
 
 [project.scripts]
@@ -40,3 +46,8 @@ Issues   = "https://github.com/ekicimustafa/modbus-mqtt-bridge/issues"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["modbus_mqtt_bridge*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
