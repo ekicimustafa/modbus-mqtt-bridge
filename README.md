@@ -29,7 +29,8 @@ Modbus TCP/RTU Device  →  modbus-mqtt-bridge  →  MQTT Broker  →  Your App
 ## Quick Start
 
 ```bash
-pip install modbus-mqtt-bridge
+pip install git+https://github.com/ekicimustafa/modbus-mqtt-bridge.git
+curl -O https://raw.githubusercontent.com/ekicimustafa/modbus-mqtt-bridge/main/config.example.yaml
 cp config.example.yaml config.yaml
 # edit config.yaml for your devices
 modbus-mqtt-bridge -c config.yaml
@@ -38,7 +39,10 @@ modbus-mqtt-bridge -c config.yaml
 Or with Docker:
 
 ```bash
-docker run -v $(pwd)/config.yaml:/config/config.yaml ekicimustafa/modbus-mqtt-bridge
+git clone https://github.com/ekicimustafa/modbus-mqtt-bridge.git
+cd modbus-mqtt-bridge
+docker build -t modbus-mqtt-bridge .
+docker run -v $(pwd)/config.yaml:/config/config.yaml modbus-mqtt-bridge
 ```
 
 ## Configuration
