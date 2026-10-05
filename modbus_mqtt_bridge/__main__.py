@@ -63,10 +63,22 @@ def main(config: Path, log_level: str) -> None:
         task.cancel()
 
     for s in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(s, _shutdown, s)
+        try:
+            loop.add_signal_handler(s, _shutdown, s)
+        except NotImplementedError:
+            # Windows event loops have no signal handlers; Ctrl+C arrives as
+            # KeyboardInterrupt below instead.
+            pass
 
     try:
         loop.run_until_complete(task)
+    except KeyboardInterrupt:
+        logger.info("Received SIGINT — shutting down…")
+        task.cancel()
+        try:
+            loop.run_until_complete(task)
+        except asyncio.CancelledError:
+            pass
     except asyncio.CancelledError:
         pass
     finally:
