@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: test (python ${{ matrix.python }}, pymodbus ${{ matrix.pymodbus }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+        pymodbus: ["3.10.0", "latest"]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          if [ "${{ matrix.pymodbus }}" != "latest" ]; then
+            pip install "pymodbus==${{ matrix.pymodbus }}"
+          fi
+          python -c "import pymodbus; print('pymodbus', pymodbus.__version__)"
+
+      - name: Test
+        run: pytest -v
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build image
+        run: docker build -t modbus-mqtt-bridge .
+
+      - name: Smoke test
+        run: docker run --rm modbus-mqtt-bridge --help
