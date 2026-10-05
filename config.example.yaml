@@ -11,6 +11,8 @@ mqtt:
   qos: 1
   retain: false
   batch_publish: false     # true → one topic per device with all registers as JSON
+  reconnect_delay: 5       # seconds before the first broker reconnect attempt
+  max_reconnect_delay: 60  # back-off cap in seconds
 
 devices:
 

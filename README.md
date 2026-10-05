@@ -23,8 +23,8 @@ Modbus TCP/RTU Device  →  modbus-mqtt-bridge  →  MQTT Broker  →  Your App
 - All common register types: `uint16`, `int16`, `uint32`, `int32`, `float32`, `float64`, `bool`, coils
 - Multiplier / scale factor per register
 - Per-register or batched JSON publishing
-- Auto-reconnect on both Modbus and MQTT connection loss
-- Docker-ready
+- Auto-reconnect with exponential back-off on both Modbus and MQTT connection loss (readings polled while the broker is down are dropped, not queued)
+- Runs on Linux, macOS and Windows; Docker-ready
 
 ## Quick Start
 
